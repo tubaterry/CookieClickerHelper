@@ -45,6 +45,7 @@ function sendData(){
 	var cookieBankCounter = 0;
 	var cookiesPerSecond  = 0;
 	var cookiesAllTime = 0;
+	var cookiesPrevious = 0;
 	var cursorPrice = 0;
 	var cursorOwned = 0;
 	var grandmaPrice = 0;
