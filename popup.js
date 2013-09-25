@@ -15,100 +15,78 @@
     You should have received a copy of the GNU General Public License
     along with Cookie Clicker Helper.  If not, see <http://www.gnu.org/licenses/>.
 */
-var timer = 0;
-var MyTabID = 0
-
-var cookieBankCounter = 0;
-var cookiesPerSecond = 0;
-var cookiesAllTime = 0;
-var cookiesPrevious = 0;
 var prestige = 0;
-var product=new Array();
+var statsLastUpdated = new Date(0);
+var product=new Array(10);
+productDiv=[cursorMessage,grandmaMessage,farmMessage,factoryMessage,mineMessage,shipmentMessage,alchemyMessage,portalMessage,tardisMessage,hadronMessage];
 
-
-productNames=["Cursor","Grandma","Farm","Factory","Mine","Shipment","Alchemy Lab","Portal","Time Machine","Antimatter Condenser"];
-productDivs=[cursorMessage,grandmaMessage,farmMessage,factoryMessage,mineMessage,shipmentMessage,alchemyMessage,portalMessage,tardisMessage,hadronMessage];
-for(var item=0;item < 10;item++){
-	product[item] = new Object();
-	product[item].name=productNames[item];
-	product[item].div=productDivs[item];
-	product[item].price=0;
-	product[item].owned=0;
-	product[item].buyTime=0;
-}
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-	if(request.MyType == "TabID"){	
-		MyTabID=sender.tab.id;
-	}
-	if(request.MyType == "StatusUpdate"){
-		cookieBankCounter=request.cookieBank;
-		cookiesPerSecond=request.cookiesPerSecond;
-		cookiesAllTime=request.cookiesAllTime;
-		cookiesPrevious=request.cookiesPrevious;
-		product[0].price=request.cursorPrice;
-		product[0].owned=request.cursorOwned;
-		product[1].price=request.grandmaPrice;
-		product[1].owned=request.grandmaOwned;
-		product[2].price=request.farmPrice;
-		product[2].owned=request.farmOwned;
-		product[3].price=request.factoryPrice;
-		product[3].owned=request.factoryOwned;
-		product[4].price=request.minePrice;
-		product[4].owned=request.mineOwned;
-		product[5].price=request.shipmentPrice;
-		product[5].owned=request.shipmentOwned;
-		product[6].price=request.alchemyPrice;
-		product[6].owned=request.alchemyOwned;
-		product[7].price=request.portalPrice;
-		product[7].owned=request.portalOwned;
-		product[8].price=request.tardisPrice;
-		product[8].owned=request.tardisOwned;
-		product[9].price=request.hadronPrice;
-		product[9].owned=request.hadronOwned;
+	var didIanswer=false;
+	if(request.MyType == "popupUpdateResponse"){
+		console.debug("received update response");
+		product=request.product;
+		prestige=request.prestige;
+		statsLastUpdated=new Date(request.statsLastUpdated);
 		
-		crunchNumbers();
 		updatePopup();
+		didIanswer=true;
 	}
-	sendResponse();
+	if(didIanswer)
+		sendResponse();
 });
-	
-function crunchNumbers(){
-	//prestige=cookiesAllTime/1000000000000;
-	prestige=(cookiesAllTime+cookiesPrevious)/1000000000000;
-	//prestige=Math.max(0,Math.floor(Math.pow(prestige,0.5)));//old version
-	prestige=Math.max(0,Math.floor((-1+Math.pow(1+8*prestige,0.5))/2));//geometric progression
-	
-	//BuyTime is (object price - cookie bank)/cookiesPerSecond
-	for(var item=0; item < 10; item++){
-		product[item].buyTime= ((product[item].price - cookieBankCounter)/cookiesPerSecond);
-	}
-	
-}
-	
+
 function updatePopup(){
+	var rightNow = new Date();
 	//tabID.innerHTML=MyTabID;
 	//cookieBank.innerHTML = cookieBankCounter;
-	prestigeMessage.innerHTML = (prestige+" (+"+(prestige*2)+"%)");
+	
+	if(  ((rightNow - statsLastUpdated)/60000) > 1){
+		if(statsLastUpdated.getHours() == 0)
+			niceTime = ("12:"+statsLastUpdated.getMinutes())
+		else niceTime = (statsLastUpdated.getHours()+":"+statsLastUpdated.getMinutes())
+		statsUpdated.innerHTML = ("<br>Based on stats page last opened at "+niceTime)
+	} else
+		statsUpdated.innerHTML = "";
+	
+	if( statsLastUpdated.getTime() == 0 )
+		statsUpdated.innerHTML = "Open the Stats page to calculate prestige.";
+	else prestigeMessage.innerHTML = ("Total prestige upon reset: "+prestige+" (+"+(prestige*2)+"%)");
+	
+	var itemsWaiting = 0;
 	for(var item=0; item < 10; item++){	
 		if(product[item].buyTime > 0){
-			product[item].div.innerHTML = ("<br>"+product[item].name+" available in: "+Math.round(product[item].buyTime)+" seconds");
+			var totalseconds = Math.round(product[item].buyTime);
+			var hours = parseInt(totalseconds / 3600);
+			totalseconds = parseInt(totalseconds % 3600);
+			var minutes = parseInt(totalseconds / 60);
+			var seconds = parseInt(totalseconds % 60);
+			productDiv[item].innerHTML = ("<br>"+product[item].name+": ");
+			if(hours >= 1)
+				productDiv[item].innerHTML = (productDiv[item].innerHTML+hours+"h ");
+			if(minutes >= 1)
+				productDiv[item].innerHTML = (productDiv[item].innerHTML+minutes+"m ");
+			if(seconds >= 1)
+				productDiv[item].innerHTML = (productDiv[item].innerHTML+seconds+"s");
+			itemsWaiting++;
 		}
 		else{
-			product[item].div.innerHTML = "";
+			productDiv[item].innerHTML = "";
 		}
 	}
+	if(itemsWaiting > 0)
+		availabilityHeader.innerHTML = "<br>Wait time to buy:";
 }
 
-function getCookieData(){
-	chrome.tabs.sendMessage(MyTabID,{
-		"MyType":"StatusUpdate"
-		},function(response,sender,sendResponse){}
-	);
+function sendUpdateRequest(){
+	console.debug("Sending update request");
+	chrome.runtime.sendMessage({
+		"MyType":"popupUpdateRequest",
+	});
 }
 
-
-setInterval(function(){ 
-	timer = timer + 1;
-	getCookieData() ;
-	},1000);
+document.addEventListener('DOMContentLoaded', function(){
+	sendUpdateRequest();
+	setInterval(function(){sendUpdateRequest();},1000);
+	console.debug("Beginning popup update cycle.");
+});

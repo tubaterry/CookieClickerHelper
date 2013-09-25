@@ -19,13 +19,16 @@ var timer = 0;
 var cookieBankCounter = 0;
 
 function setID(){
+	console.debug("Sending TabID to background script");
 	chrome.runtime.sendMessage({
-			"MyType":"TabID",
+			"MyType":"TabIDUpdate"
 		});
 }
-setInterval(setID,1000);
+
+setTimeout(setID(),1000);
 
 function numberize(sillyString){
+	
 	var result = new Number;
 	result = 0;
 	for(var chunk=0; chunk < (sillyString.split(",")).length; chunk++){
@@ -37,6 +40,7 @@ function numberize(sillyString){
 }
 
 function sendData(){
+	console.debug("preparing data for send");
 	//There is definitely a smarter way to do this.
 	var cookieBankCounter = 0;
 	var cookiesPerSecond  = 0;
@@ -62,12 +66,30 @@ function sendData(){
 	var hadronPrice = 0;
 	var hadronOwned = 0;
 
+	console.debug("Get Cookie bank Data");
 	cookieBankCounter = numberize(String(((document.getElementById("cookies").innerText)).split(/[\n\s]+/)[0]));
 	cookiesPerSecond  = numberize(String(((document.getElementById("cookies").innerText)).split(/[\n\s]+/)[5]));
-	cookiesAllTime = numberize((((document.getElementById("menu")).getElementsByClassName("subsection")[0].getElementsByClassName("price plain"))[1]).innerText);
-	if(((document.getElementById("menu")).getElementsByClassName("subsection")[0].getElementsByClassName("price plain"))[2] !== "undefined")
-		cookiesPrevious = numberize((((document.getElementById("menu")).getElementsByClassName("subsection")[0].getElementsByClassName("price plain"))[2]).innerText);
+	chrome.runtime.sendMessage({
+		"MyType": "bankUpdate",
+		"cookieBank":cookieBankCounter,
+		"cookiesPerSecond":cookiesPerSecond
+	});
+
+	console.debug("Is stats open?")
+	if(typeof(   ((document.getElementById("menu")).getElementsByClassName("subsection")[0])  ) !== "undefined")
+	{
+		console.debug("Stats page open - sending stats");
+		cookiesAllTime = numberize((((document.getElementById("menu")).getElementsByClassName("subsection")[0].getElementsByClassName("price plain"))[1]).innerText);
+		if(typeof(((document.getElementById("menu")).getElementsByClassName("subsection")[0].getElementsByClassName("price plain"))[2]) !== "undefined")
+			cookiesPrevious = numberize((((document.getElementById("menu")).getElementsByClassName("subsection")[0].getElementsByClassName("price plain"))[2]).innerText);
+		chrome.runtime.sendMessage({
+			"MyType": "statsUpdate",
+			"cookiesAllTime":cookiesAllTime,
+			"cookiesPrevious":cookiesPrevious
+		});
+	}
 	
+	console.debug("Checking Prices");
 	cursorPrice = numberize((document.getElementById("product0")).getElementsByClassName("price")[0].innerText);
 	grandmaPrice = numberize((document.getElementById("product1")).getElementsByClassName("price")[0].innerText);
 	farmPrice = numberize((document.getElementById("product2")).getElementsByClassName("price")[0].innerText);
@@ -79,6 +101,7 @@ function sendData(){
 	tardisPrice = numberize((document.getElementById("product8")).getElementsByClassName("price")[0].innerText);
 	hadronPrice = numberize((document.getElementById("product9")).getElementsByClassName("price")[0].innerText);
 	
+	console.debug("Checking number of things.");
 	if(typeof((document.getElementById("product0")).getElementsByClassName("owned")[0]) !== "undefined")
 		cursorOwned = numberize((document.getElementById("product0")).getElementsByClassName("owned")[0].innerText);
 	if(typeof((document.getElementById("product1")).getElementsByClassName("owned")[0]) !== "undefined")
@@ -102,11 +125,7 @@ function sendData(){
 	
 	
 	chrome.runtime.sendMessage({
-			"MyType": "StatusUpdate",
-			"cookieBank":cookieBankCounter,
-			"cookiesPerSecond":cookiesPerSecond,
-			"cookiesAllTime":cookiesAllTime,
-			"cookiesPrevious":cookiesPrevious,
+			"MyType": "productUpdate",
 			"cursorPrice":cursorPrice,
 			"cursorOwned":cursorOwned,
 			"grandmaPrice":grandmaPrice,
@@ -127,15 +146,16 @@ function sendData(){
 			"tardisOwned":tardisOwned,
 			"hadronPrice":hadronPrice,
 			"hadronOwned":hadronOwned
-		});
+	});
 }
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-	if(request.MyType == "StatusUpdate"){	
+	var didIanswer=false;
+	if(request.MyType == "cookieDataRequest"){	
+		console.debug("received cookie data request");
 		sendData();
+		didIanswer=true;
+	}
+	if(didIanswer)
 		sendResponse();
-	}
-	else{
-		sendResponse({});
-	}
 });

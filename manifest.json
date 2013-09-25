@@ -3,7 +3,12 @@
 
   "name": "Cookie Clicker Helper",
   "description": "This extension makes various Cookie Clicker functions easier.",
-  "version": "0.2",
+  "version": "0.3",
+  "icons": {
+	"16" :"icon-16.png",
+	"48" :"icon-48.png",
+	"128":"icon-128.png"
+  },
   
   "content_scripts": [
   	{
@@ -14,14 +19,17 @@
   ],
   
   "background": {
-	"page": "background.html"
+	"scripts": ["background.js"]
   },
   
   "permissions": [
     "tabs","http://orteil.dashnet.org/cookieclicker/"
   ],
   "browser_action": {
-    "default_icon": "icon.png",
+    "default_icon": {
+		"19":"icon-19.png",
+		"38":"icon-38.png"
+	},
     "default_popup": "popup.html"
   }
 }
