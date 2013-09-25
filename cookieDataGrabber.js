@@ -65,6 +65,8 @@ function sendData(){
 	cookieBankCounter = numberize(String(((document.getElementById("cookies").innerText)).split(/[\n\s]+/)[0]));
 	cookiesPerSecond  = numberize(String(((document.getElementById("cookies").innerText)).split(/[\n\s]+/)[5]));
 	cookiesAllTime = numberize((((document.getElementById("menu")).getElementsByClassName("subsection")[0].getElementsByClassName("price plain"))[1]).innerText);
+	if(((document.getElementById("menu")).getElementsByClassName("subsection")[0].getElementsByClassName("price plain"))[2] !== "undefined")
+		cookiesPrevious = numberize((((document.getElementById("menu")).getElementsByClassName("subsection")[0].getElementsByClassName("price plain"))[2]).innerText);
 	
 	cursorPrice = numberize((document.getElementById("product0")).getElementsByClassName("price")[0].innerText);
 	grandmaPrice = numberize((document.getElementById("product1")).getElementsByClassName("price")[0].innerText);
@@ -104,6 +106,7 @@ function sendData(){
 			"cookieBank":cookieBankCounter,
 			"cookiesPerSecond":cookiesPerSecond,
 			"cookiesAllTime":cookiesAllTime,
+			"cookiesPrevious":cookiesPrevious,
 			"cursorPrice":cursorPrice,
 			"cursorOwned":cursorOwned,
 			"grandmaPrice":grandmaPrice,

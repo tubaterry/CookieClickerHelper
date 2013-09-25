@@ -21,6 +21,7 @@ var MyTabID = 0
 var cookieBankCounter = 0;
 var cookiesPerSecond = 0;
 var cookiesAllTime = 0;
+var cookiesPrevious = 0;
 var prestige = 0;
 var product=new Array();
 
@@ -44,6 +45,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 		cookieBankCounter=request.cookieBank;
 		cookiesPerSecond=request.cookiesPerSecond;
 		cookiesAllTime=request.cookiesAllTime;
+		cookiesPrevious=request.cookiesPrevious;
 		product[0].price=request.cursorPrice;
 		product[0].owned=request.cursorOwned;
 		product[1].price=request.grandmaPrice;
@@ -72,7 +74,8 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 });
 	
 function crunchNumbers(){
-	prestige=cookiesAllTime/1000000000000;
+	//prestige=cookiesAllTime/1000000000000;
+	prestige=(cookiesAllTime+cookiesPrevious)/1000000000000;
 	//prestige=Math.max(0,Math.floor(Math.pow(prestige,0.5)));//old version
 	prestige=Math.max(0,Math.floor((-1+Math.pow(1+8*prestige,0.5))/2));//geometric progression
 	
