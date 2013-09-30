@@ -16,6 +16,7 @@
     along with Cookie Clicker Helper.  If not, see <http://www.gnu.org/licenses/>.
 */
 var prestige = 0;
+var cookieBankCounter = 0;
 var statsLastUpdated = new Date(0);
 var product=new Array(10);
 productDiv=[cursorMessage,grandmaMessage,farmMessage,factoryMessage,mineMessage,shipmentMessage,alchemyMessage,portalMessage,tardisMessage,hadronMessage];
@@ -27,6 +28,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 		console.debug("received update response");
 		product=request.product;
 		prestige=request.prestige;
+		cookieBankCounter=request.cookieBankCounter;
 		statsLastUpdated=new Date(request.statsLastUpdated);
 		
 		updatePopup();
@@ -35,6 +37,21 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 	if(didIanswer)
 		sendResponse();
 });
+
+function prettyfy(uglyNum){
+	if(uglyNum < 1000)
+		return(uglyNum);
+	var prettyNum = new String();
+	var tempNum = new String();
+	tempNum=Math.floor(uglyNum);
+	tempNum=(tempNum+'').split('').reverse();
+	for (var i in tempNum)
+	{
+		if (i%3==0 && i>0) prettyNum=','+prettyNum;
+		prettyNum=tempNum[i]+prettyNum;
+	}
+	return(prettyNum);
+}
 
 function updatePopup(){
 	var rightNow = new Date();
@@ -52,6 +69,8 @@ function updatePopup(){
 	if( statsLastUpdated.getTime() == 0 )
 		statsUpdated.innerHTML = "Open the Stats page to calculate prestige.";
 	else prestigeMessage.innerHTML = ("Total prestige upon reset: "+prestige+" (+"+(prestige*2)+"%)");
+	
+	cookieBankMessage.innerHTML = ("<br>Cookies: "+prettyfy(cookieBankCounter));
 	
 	var itemsWaiting = 0;
 	for(var item=0; item < 10; item++){	
@@ -76,6 +95,7 @@ function updatePopup(){
 	}
 	if(itemsWaiting > 0)
 		availabilityHeader.innerHTML = "<br>Wait time to buy:";
+	
 }
 
 function sendUpdateRequest(){

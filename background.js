@@ -42,6 +42,7 @@ function popupUpdate(){
 	console.debug("sending popup update response");
 	chrome.runtime.sendMessage({
 		"MyType":"popupUpdateResponse",
+		"cookieBankCounter":cookieBankCounter,
 		"prestige":prestige,
 		"statsLastUpdated":statsLastUpdated,
 		"product":product
