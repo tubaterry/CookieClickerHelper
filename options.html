@@ -1,0 +1,75 @@
+<!doctype html>
+
+<!--
+/*
+	Copyright 2013, Chris Terry - tuba.terry@gmail.com
+	This file is part of Cookie Clicker Helper.
+
+    Cookie Clicker Helper is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Cookie Clicker Helper is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Cookie Clicker Helper.  If not, see <http://www.gnu.org/licenses/>.
+*/
+-->
+<html>
+<head><title>Cookie Clicker Helper Options</title></head>
+
+<body>
+<h1>Cookie Clicker Helper options!</h1>
+Show current cookie bank?<input type="checkbox" id="showCookieBank"></br>
+Enable shortcut to Cookie Clicker?<input type="checkbox" id="showCCShortcut"></br>
+<div id="disabledOptions" hidden>
+Show 
+<select id="alertType">
+	<option value="0" selected>no</option>
+	<option value="1">desktop</option>
+	<option value="2">bubble</option>
+</select>
+alerts.<br>
+<div id="areAlertsEnabled">
+	-Alert me <select id="purchaseAlertTimeout">
+		<option value="15">15 seconds</option>
+		<option value="30" selected>30 seconds</option>
+		<option value="60">1 minute</option>
+		<option value="-1">never</option>
+	</select> before next purchase becomes available?<br>
+	-Alert me of Golden Cookies?<input type="checkbox" id="showGoldenCookie"><br>
+</div>
+<small>
+	<ul>Notes:
+		<li>Clicking anywhere in the pop-up will bring up the active Cookie Clicker game.
+		<div id="configNotes">
+		</div>
+	</ul>
+</small>
+</div>
+
+
+<br>
+<button id="reset">Reset</button>
+<div id="status"></div>
+</body>
+
+<br>
+<br>
+<div id="changeLog">
+	<h2>Changelog</h2>
+	<ul><h3>Version 0.4: Sep 30, 2013</h3>
+		<li>Added selectable options (changes saved immediately)
+		<li>Clicking in the popup window will take you to your game or open the Cookie Clicker website
+	</ul>
+	<small>Click to dismiss.</small>
+</div>
+
+
+<script src="options.js"></script>
+
+</html>

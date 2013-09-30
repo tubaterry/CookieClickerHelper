@@ -15,7 +15,8 @@
     You should have received a copy of the GNU General Public License
     along with Cookie Clicker Helper.  If not, see <http://www.gnu.org/licenses/>.
 */
-var MyTabID = 0
+var myTabID = 0;
+var myWindowID = 0;
 
 var cookieBankCounter = 0;
 var cookiesPerSecond = 0;
@@ -42,12 +43,16 @@ function popupUpdate(){
 	console.debug("sending popup update response");
 	chrome.runtime.sendMessage({
 		"MyType":"popupUpdateResponse",
+		"myTabID":myTabID,
 		"cookieBankCounter":cookieBankCounter,
 		"prestige":prestige,
 		"statsLastUpdated":statsLastUpdated,
 		"product":product
 		},function(response,sender,sendResponse){}
 	);
+}
+
+function setNewAlert(alertType){
 }
 
 function crunchNumbers(){
@@ -68,9 +73,14 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 	var didIanswer=false;
 	if(request.MyType == "TabIDUpdate"){	
 		console.debug("received tab id");
-		MyTabID=sender.tab.id;
+		myTabID=sender.tab.id;
 		setInterval(function(){ 
 			getCookieData() ;
+			chrome.tabs.get(myTabID, function(tab){
+				chrome.windows.get(tab.windowId, function(win){
+					myWindowID=win.id;
+				});
+			});
 			},1000);
 		didIanswer=true;
 	}
@@ -126,8 +136,13 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
 function getCookieData(){
 	console.debug("sending cookie data request")
-	chrome.tabs.sendMessage(MyTabID,{
+	chrome.tabs.sendMessage(myTabID,{
 		"MyType":"cookieDataRequest"
 		},function(response,sender,sendResponse){}
 	);
 }
+
+chrome.runtime.onInstalled.addListener(function (){
+	localStorage["changeLogClicked"]="false";
+	chrome.tabs.create({url: (chrome.extension.getURL("options.html")), active: true});
+});

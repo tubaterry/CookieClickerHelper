@@ -19,6 +19,7 @@ var prestige = 0;
 var cookieBankCounter = 0;
 var statsLastUpdated = new Date(0);
 var product=new Array(10);
+var myTabID=0;
 productDiv=[cursorMessage,grandmaMessage,farmMessage,factoryMessage,mineMessage,shipmentMessage,alchemyMessage,portalMessage,tardisMessage,hadronMessage];
 
 
@@ -26,6 +27,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 	var didIanswer=false;
 	if(request.MyType == "popupUpdateResponse"){
 		console.debug("received update response");
+		myTabID=request.myTabID;
 		product=request.product;
 		prestige=request.prestige;
 		cookieBankCounter=request.cookieBankCounter;
@@ -55,9 +57,40 @@ function prettyfy(uglyNum){
 
 function updatePopup(){
 	var rightNow = new Date();
-	//tabID.innerHTML=MyTabID;
-	//cookieBank.innerHTML = cookieBankCounter;
+	if(localStorage["showCCShortcut"] == "true" ){
+		var shortcutClickListen = document.getElementById("cookieClickerShortcut");
+		if(myTabID==0){
+			document.addEventListener("click", function (){
+				chrome.tabs.create({url: "http://orteil.dashnet.org/cookieclicker/", active: true});
+			});
+			//cookieClickerShortcut.innerHTML = "<a href=\"http://orteil.dashnet.org/cookieclicker/\">Open Cookie Clicker";
+		}else{
+			var myWindowID=0;
+			chrome.tabs.get(myTabID, function(tab){
+				chrome.windows.get(tab.windowId, function(win){
+					myWindowID=win.id;
+				});
+			});
+			document.addEventListener("click", function (){
+				chrome.tabs.update(myTabID,{active:true}, function(){
+					chrome.windows.update(myWindowID,{focused:true});
+				});
+			});
+			//cookieClickerShortcut.innerHTML = "<a href=\"http://orteil.dashnet.org/cookieclicker/\">Return to Cookie Clicker";
+		}
+		
+	}
+	else
+		cookieClickerShortcut.innerHTML = "";
 	
+	cookieBankMessage.innerHTML = ("Cookies: "+prettyfy(cookieBankCounter)+"<br>");
+	
+	if(localStorage["showCookieBank"] == "true" && myTabID != 0)
+		cookieBankMessage.hidden = false;
+	else 
+		cookieBankMessage.hidden = true;
+	
+	//Show this if user hasn't checked stats in the last minute.
 	if(  ((rightNow - statsLastUpdated)/60000) > 1){
 		if(statsLastUpdated.getHours() == 0)
 			niceTime = ("12:"+statsLastUpdated.getMinutes())
@@ -66,11 +99,14 @@ function updatePopup(){
 	} else
 		statsUpdated.innerHTML = "";
 	
-	if( statsLastUpdated.getTime() == 0 )
-		statsUpdated.innerHTML = "Open the Stats page to calculate prestige.";
+	//Show this if user hasn't checked stats page yet.
+	if( statsLastUpdated.getTime() == 0 ){
+		if(myTabID != 0)
+			statsUpdated.innerHTML = "Open the Stats page to calculate prestige.";
+		else
+			statsUpdated.innerHTML = "Click to open Cookie Clicker!";
+	}
 	else prestigeMessage.innerHTML = ("Total prestige upon reset: "+prestige+" (+"+(prestige*2)+"%)");
-	
-	cookieBankMessage.innerHTML = ("<br>Cookies: "+prettyfy(cookieBankCounter));
 	
 	var itemsWaiting = 0;
 	for(var item=0; item < 10; item++){	
