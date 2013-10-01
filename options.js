@@ -126,7 +126,12 @@ function set_defaults(){
 	restore_options();
 }
 
-document.addEventListener('DOMContentLoaded', restore_options);
+document.addEventListener('DOMContentLoaded', function(){
+	if(localStorage.length <= 1)
+		set_defaults();
+	else
+		restore_options();
+});
 document.onchange=save_options;
 document.querySelector('#reset').addEventListener('click', function(){ 
 	set_defaults();
