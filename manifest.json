@@ -3,7 +3,7 @@
 
   "name": "Cookie Clicker Helper",
   "description": "This extension makes various Cookie Clicker functions easier.",
-  "version": "0.4",
+  "version": "0.4.1",
   "icons": {
 	"16" :"icon-16.png",
 	"48" :"icon-48.png",
