@@ -20,7 +20,7 @@ var myWindowID = 0;
 
 var cookieBankCounter = 0;
 var cookiesPerSecond = 0;
-var cookiesAllTime = 0;
+var cookiesThisGame = 0;
 var cookiesPrevious = 0;
 var statsLastUpdated = new Date(0);
 var prestige = 0;
@@ -57,8 +57,8 @@ function setNewAlert(alertType){
 
 function crunchNumbers(){
 	console.debug("reticulating splines");
-	//prestige=cookiesAllTime/1000000000000;
-	prestige=(cookiesAllTime+cookiesPrevious)/1000000000000;
+	//prestige=cookiesThisGame/1000000000000;
+	prestige=(cookiesThisGame+cookiesPrevious)/1000000000000;
 	//prestige=Math.max(0,Math.floor(Math.pow(prestige,0.5)));//old version
 	prestige=Math.max(0,Math.floor((-1+Math.pow(1+8*prestige,0.5))/2));//geometric progression
 	
@@ -93,7 +93,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 	}
 	if(request.MyType == "statsUpdate"){
 		console.debug("received stats update");
-		cookiesAllTime=request.cookiesAllTime;
+		cookiesThisGame=request.cookiesThisGame;
 		cookiesPrevious=request.cookiesPrevious;
 		statsLastUpdated = Date();
 		crunchNumbers();

@@ -44,7 +44,7 @@ function sendData(){
 	//There is definitely a smarter way to do this.
 	var cookieBankCounter = 0;
 	var cookiesPerSecond  = 0;
-	var cookiesAllTime = 0;
+	var cookiesThisGame = 0;
 	var cookiesPrevious = 0;
 	var cursorPrice = 0;
 	var cursorOwned = 0;
@@ -80,12 +80,12 @@ function sendData(){
 	if(typeof(   ((document.getElementById("menu")).getElementsByClassName("subsection")[0])  ) !== "undefined")
 	{
 		console.debug("Stats page open - sending stats");
-		cookiesAllTime = numberize((((document.getElementById("menu")).getElementsByClassName("subsection")[0].getElementsByClassName("price plain"))[1]).innerText);
-		if(typeof(((document.getElementById("menu")).getElementsByClassName("subsection")[0].getElementsByClassName("price plain"))[2]) !== "undefined")
-			cookiesPrevious = numberize((((document.getElementById("menu")).getElementsByClassName("subsection")[0].getElementsByClassName("price plain"))[2]).innerText);
+		cookiesThisGame = numberize((((document.getElementById("menu")).getElementsByClassName("subsection")[0].getElementsByClassName("price plain"))[1]).innerText);
+		if(typeof(((document.getElementById("menu")).getElementsByClassName("subsection")[0].getElementsByClassName("price plain"))[3]) !== "undefined")
+			cookiesPrevious = numberize((((document.getElementById("menu")).getElementsByClassName("subsection")[0].getElementsByClassName("price plain"))[3]).innerText);
 		chrome.runtime.sendMessage({
 			"MyType": "statsUpdate",
-			"cookiesAllTime":cookiesAllTime,
+			"cookiesThisGame":cookiesThisGame,
 			"cookiesPrevious":cookiesPrevious
 		});
 	}
